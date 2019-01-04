@@ -22,13 +22,16 @@ echo -e "\e[0m"
 NODE_TESTED="v5.1.0"
 
 # Determine which Pi is running.
-ARM=$(uname -m) 
+ARM=$(uname -m)
 
 # Check the Raspberry Pi version.
+if [ "$ARM" != "armv6l" ]; then
+	echo -e "\e[91mIf you are running a Pi Zero, installation will continue, but you will have to run in server only mode."
+	exit;
+fi
 if [ "$ARM" != "armv7l" ]; then
 	echo -e "\e[91mSorry, your Raspberry Pi is not supported."
-	echo -e "\e[91mPlease run MagicMirror on a Raspberry Pi 2 or 3."
-	echo -e "\e[91mIf this is a Pi Zero, you are in the same boat as the original Raspberry Pi. You must run in server only mode."
+	echo -e "\e[91mPlease run MagicMirror on a Raspberry Pi 0, 2 or 3."
 	exit;
 fi
 
@@ -39,6 +42,7 @@ function command_exists () { type "$1" &> /dev/null ;}
 # Update before first apt-get
 echo -e "\e[96mUpdating packages ...\e[90m"
 sudo apt-get update || echo -e "\e[91mUpdate failed, carrying on installation ...\e[90m"
+sudo apt-get upgrade && apt-get upgrade --fix-missing || echo -e "\e[91mUpdate failed, carrying on installation ...\e[90m"
 
 # Installing helper tools
 echo -e "\e[96mInstalling helper tools ...\e[90m"
@@ -75,17 +79,35 @@ fi
 
 # Install or upgrade node if necessary.
 if $NODE_INSTALL; then
-	
+
 	echo -e "\e[96mInstalling Node.js ...\e[90m"
 
 	# Fetch the latest version of Node.js from the selected branch
 	# The NODE_STABLE_BRANCH variable will need to be manually adjusted when a new branch is released. (e.g. 7.x)
 	# Only tested (stable) versions are recommended as newer versions could break MagicMirror.
-	
+
 	NODE_STABLE_BRANCH="9.x"
-	curl -sL https://deb.nodesource.com/setup_$NODE_STABLE_BRANCH | sudo -E bash -
-	sudo apt-get install -y nodejs
-	echo -e "\e[92mNode.js installation Done!\e[0m"
+	if [ "$ARM" != "armv7l" ]; then
+		curl -sL https://deb.nodesource.com/setup_$NODE_STABLE_BRANCH | sudo -E bash -
+		sudo apt-get install -y nodejs
+		echo -e "\e[92mNode.js installation Done!\e[0m"
+	else
+		if [ "$ARM" != "armv6l" ]; then
+			echo 'Downloading node v11.6.0'
+			curl -o node-v11.6.0-linux-armv6l.tar.gz  https://nodejs.org/dist/v11.6.0/node-v11.6.0-linux-armv6l.tar.gz; #Most up to date recent version
+			echo 'Extracting node v11.6.0'
+			tar -xzf node-v11.6.0-linux-armv6l.tar.gz; # extract files
+			echo 'Extracting node and npm'
+			cd node-v11.6.0-linux-armv6l/;
+			sudo cp -R * /usr/local/;
+			cd ~;
+		fi
+	fi
+fi
+
+# Install git and unclutter if on a Pi Zero
+if [ "$ARM" != "armv6l" ]; then
+	sudo apt install git; sudo apt install unclutter;
 fi
 
 # Install MagicMirror
@@ -101,7 +123,7 @@ if [ -d "$HOME/MagicMirror" ] ; then
 fi
 
 echo -e "\e[96mCloning MagicMirror ...\e[90m"
-if git clone --depth=1 https://github.com/MichMich/MagicMirror.git; then 
+if git clone --depth=1 https://github.com/MichMich/MagicMirror.git; then
 	echo -e "\e[92mCloning MagicMirror Done!\e[0m"
 else
 	echo -e "\e[91mUnable to clone MagicMirror."
@@ -110,11 +132,31 @@ fi
 
 cd ~/MagicMirror  || exit
 echo -e "\e[96mInstalling dependencies ...\e[90m"
-if npm install; then 
-	echo -e "\e[92mDependencies installation Done!\e[0m"
+if [ "$ARM" != "armv6l" ]; then
+	if npx npmc@latest install; then
+		echo -e "\e[91mUnable to install dependencies!"
+		exit;
+	fi
+	if npm install acorn@latest; then
+		echo -e "\e[91mUnable to install dependencies!"
+		exit;
+	fi
+	if npm install stylelint@latest; then
+		echo -e "\e[91mUnable to install dependencies!"
+		exit;
+	fi
+	if npm audit fix; then
+		echo -e "\e[91mVulnerabilities may remain!"
+	fi
 else
-	echo -e "\e[91mUnable to install dependencies!"
-	exit;
+	if [ "$ARM" != "armv7l" ]; then
+		if npm install; then
+			echo -e "\e[92mDependencies installation Done!\e[0m"
+		else
+			echo -e "\e[91mUnable to install dependencies!"
+			exit;
+		fi
+	fi
 fi
 
 # Use sample config for start MagicMirror
@@ -151,13 +193,25 @@ fi
 # Use pm2 control like a service MagicMirror
 read -p "Do you want use pm2 for auto starting of your MagicMirror (y/N)?" choice
 if [[ $choice =~ ^[Yy]$ ]]; then
-    sudo npm install -g pm2
-    sudo su -c "env PATH=$PATH:/usr/bin pm2 startup linux -u pi --hp /home/pi"
-    pm2 start ~/MagicMirror/installers/pm2_MagicMirror.json
+	sudo npm install -g pm2
+	if [ "$ARM" != "armv6l" ]; then
+		sudo chmod a+x ~/MagicMirror/installers/startMagicMirrorPi0.sh;
+		sudo chmod a+x ~/MagicMirror/installers/pm2_MagicMirrorPi0.json;
+		sudo chmod a+x ~/MagicMirror/installers/chromium_startPi0.sh;
+		sudo su -c "env PATH=$PATH:/usr/bin pm2 startup systemd -u pi --hp /home/pi"
+    pm2 start ~/MagicMirror/installers/pm2_MagicMirrorPi0.json
     pm2 save
+		echo " "
+		echo -e "\e[92mWe're ready! Restart your Pi Zero to start your MagicMirror. \e[0m"
+	else
+		if [ "$ARM" != "armv7l" ]; then
+	    sudo su -c "env PATH=$PATH:/usr/bin pm2 startup linux -u pi --hp /home/pi"
+	    pm2 start ~/MagicMirror/installers/pm2_MagicMirror.json
+	    pm2 save
+			echo " "
+			echo -e "\e[92mWe're ready! Run \e[1m\e[97mDISPLAY=:0 npm start\e[0m\e[92m from the ~/MagicMirror directory to start your MagicMirror.\e[0m"
+		fi
+	fi
 fi
-
-echo " "
-echo -e "\e[92mWe're ready! Run \e[1m\e[97mDISPLAY=:0 npm start\e[0m\e[92m from the ~/MagicMirror directory to start your MagicMirror.\e[0m"
 echo " "
 echo " "

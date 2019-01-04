@@ -25,7 +25,7 @@ NODE_TESTED="v5.1.0"
 ARM=$(uname -m)
 
 # Check the Raspberry Pi version.
-if [ "$ARM" != "armv6l" ]; then
+if [ "$ARM" = "armv6l" ]; then
 	echo -e "\e[91mIf you are running a Pi Zero, installation will continue, but you will have to run in server only mode."
 	exit;
 else
@@ -88,12 +88,12 @@ if $NODE_INSTALL; then
 	# Only tested (stable) versions are recommended as newer versions could break MagicMirror.
 
 	NODE_STABLE_BRANCH="9.x"
-	if [ "$ARM" != "armv7l" ]; then
+	if [ "$ARM" = "armv7l" ]; then
 		curl -sL https://deb.nodesource.com/setup_$NODE_STABLE_BRANCH | sudo -E bash -
 		sudo apt-get install -y nodejs
 		echo -e "\e[92mNode.js installation Done!\e[0m"
 	else
-		if [ "$ARM" != "armv6l" ]; then
+		if [ "$ARM" = "armv6l" ]; then
 			echo 'Downloading node v11.6.0'
 			curl -o node-v11.6.0-linux-armv6l.tar.gz  https://nodejs.org/dist/v11.6.0/node-v11.6.0-linux-armv6l.tar.gz; #Most up to date recent version
 			echo 'Extracting node v11.6.0'
@@ -107,7 +107,7 @@ if $NODE_INSTALL; then
 fi
 
 # Install git and unclutter if on a Pi Zero
-if [ "$ARM" != "armv6l" ]; then
+if [ "$ARM" = "armv6l" ]; then
 	sudo apt install git; sudo apt install unclutter;
 fi
 
@@ -133,7 +133,7 @@ fi
 
 cd ~/MagicMirror  || exit
 echo -e "\e[96mInstalling dependencies ...\e[90m"
-if [ "$ARM" != "armv6l" ]; then
+if [ "$ARM" = "armv6l" ]; then
 	if npx npmc@latest install; then
 		echo -e "\e[91mUnable to install dependencies!"
 		exit;
@@ -150,7 +150,7 @@ if [ "$ARM" != "armv6l" ]; then
 		echo -e "\e[91mVulnerabilities may remain!"
 	fi
 else
-	if [ "$ARM" != "armv7l" ]; then
+	if [ "$ARM" = "armv7l" ]; then
 		if npm install; then
 			echo -e "\e[92mDependencies installation Done!\e[0m"
 		else
@@ -195,7 +195,7 @@ fi
 read -p "Do you want use pm2 for auto starting of your MagicMirror (y/N)?" choice
 if [[ $choice =~ ^[Yy]$ ]]; then
 	sudo npm install -g pm2
-	if [ "$ARM" != "armv6l" ]; then
+	if [ "$ARM" = "armv6l" ]; then
 		sudo chmod a+x ~/MagicMirror/installers/startMagicMirrorPi0.sh;
 		sudo chmod a+x ~/MagicMirror/installers/pm2_MagicMirrorPi0.json;
 		sudo chmod a+x ~/MagicMirror/installers/chromium_startPi0.sh;
@@ -205,7 +205,7 @@ if [[ $choice =~ ^[Yy]$ ]]; then
 		echo " "
 		echo -e "\e[92mWe're ready! Restart your Pi Zero to start your MagicMirror. \e[0m"
 	else
-		if [ "$ARM" != "armv7l" ]; then
+		if [ "$ARM" = "armv7l" ]; then
 	    sudo su -c "env PATH=$PATH:/usr/bin pm2 startup linux -u pi --hp /home/pi"
 	    pm2 start ~/MagicMirror/installers/pm2_MagicMirror.json
 	    pm2 save

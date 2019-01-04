@@ -117,7 +117,10 @@ if [ -d "$HOME/MagicMirror" ] ; then
 fi
 
 echo -e "\e[96mCloning MagicMirror ...\e[90m"
-if git clone --depth=1 https://github.com/MichMich/MagicMirror.git; then
+## if brought back into main repo
+#if git clone --depth=1 https://github.com/MichMich/MagicMirror.git; then
+## if using from ac2799 repo
+if git clone --depth=1 https://github.com/ac2799/MagicMirror.git; then
 	echo -e "\e[92mCloning MagicMirror Done!\e[0m"
 else
 	echo -e "\e[91mUnable to clone MagicMirror."
@@ -128,13 +131,13 @@ cd ~/MagicMirror  || exit
 echo -e "\e[96mInstalling dependencies ...\e[90m"
 if [ "$ARM" = "armv6l" ]; then
 	if npx npmc@latest install; then
-		echo -e "\e[91mUnable to install dependencies! (npmc@latest install fail)"
+		echo -e "\e[91mErrors while installing dependencies! (source command: npmc@latest install)"
 	fi
 	if npm install acorn@latest; then
-		echo -e "\e[91mUnable to install dependencies (acorn)!"
+		echo -e "\e[91mErrors while installing dependencies! (source command: npm install acorn@latest)"
 	fi
 	if npm install stylelint@latest; then
-		echo -e "\e[91mUnable to install dependencies (stylelint)!"
+		echo -e "\e[91mErrors while installing dependencies! (source command: pm install stylelint@latest)"
 	fi
 	if npm audit fix; then
 		echo -e "\e[91mVulnerabilities may remain!"

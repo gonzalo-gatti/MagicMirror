@@ -28,11 +28,12 @@ ARM=$(uname -m)
 if [ "$ARM" != "armv6l" ]; then
 	echo -e "\e[91mIf you are running a Pi Zero, installation will continue, but you will have to run in server only mode."
 	exit;
-fi
-if [ "$ARM" != "armv7l" ]; then
-	echo -e "\e[91mSorry, your Raspberry Pi is not supported."
-	echo -e "\e[91mPlease run MagicMirror on a Raspberry Pi 0, 2 or 3."
-	exit;
+else
+	if [ "$ARM" != "armv7l" ]; then
+		echo -e "\e[91mSorry, your Raspberry Pi is not supported."
+		echo -e "\e[91mPlease run MagicMirror on a Raspberry Pi 0, 2 or 3."
+		exit;
+	fi
 fi
 
 # Define helper methods.

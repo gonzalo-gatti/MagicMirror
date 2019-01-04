@@ -27,12 +27,10 @@ ARM=$(uname -m)
 # Check the Raspberry Pi version.
 if [ "$ARM" = "armv6l" ]; then
 	echo -e "\e[91mIf you are running a Pi Zero, installation will continue, but you will have to run in server only mode."
-else
-	if [ "$ARM" != "armv7l" ]; then
-		echo -e "\e[91mSorry, your Raspberry Pi is not supported."
-		echo -e "\e[91mPlease run MagicMirror on a Raspberry Pi 0, 2 or 3."
-		exit;
-	fi
+elif [ "$ARM" != "armv7l" ]; then
+	echo -e "\e[91mSorry, your Raspberry Pi is not supported."
+	echo -e "\e[91mPlease run MagicMirror on a Raspberry Pi 0, 2 or 3."
+	exit;
 fi
 
 # Define helper methods.
@@ -67,11 +65,9 @@ if command_exists node; then
 			echo "Please quit all Node processes and restart the installer."
 			exit;
 		fi
-
 	else
 		echo -e "\e[92mNo Node.js upgrade necessary.\e[0m"
 	fi
-
 else
 	echo -e "\e[93mNode.js is not installed.\e[0m";
 	NODE_INSTALL=true
@@ -91,17 +87,15 @@ if $NODE_INSTALL; then
 		curl -sL https://deb.nodesource.com/setup_$NODE_STABLE_BRANCH | sudo -E bash -
 		sudo apt-get install -y nodejs
 		echo -e "\e[92mNode.js installation Done!\e[0m"
-	else
-		if [ "$ARM" = "armv6l" ]; then
-			echo 'Downloading node v11.6.0'
-			curl -o node-v11.6.0-linux-armv6l.tar.gz  https://nodejs.org/dist/v11.6.0/node-v11.6.0-linux-armv6l.tar.gz; #Most up to date recent version
-			echo 'Extracting node v11.6.0'
-			tar -xzf node-v11.6.0-linux-armv6l.tar.gz; # extract files
-			echo 'Extracting node and npm'
-			cd node-v11.6.0-linux-armv6l/;
-			sudo cp -R * /usr/local/;
-			cd ~;
-		fi
+	elif [ "$ARM" = "armv6l" ]; then
+		echo 'Downloading node v11.6.0'
+		curl -o node-v11.6.0-linux-armv6l.tar.gz  https://nodejs.org/dist/v11.6.0/node-v11.6.0-linux-armv6l.tar.gz; #Most up to date recent version
+		echo 'Extracting node v11.6.0'
+		tar -xzf node-v11.6.0-linux-armv6l.tar.gz; # extract files
+		echo 'Extracting node and npm'
+		cd node-v11.6.0-linux-armv6l/;
+		sudo cp -R * /usr/local/;
+		cd ~;
 	fi
 fi
 
@@ -148,14 +142,12 @@ if [ "$ARM" = "armv6l" ]; then
 	if npm audit fix; then
 		echo -e "\e[91mVulnerabilities may remain!"
 	fi
-else
-	if [ "$ARM" = "armv7l" ]; then
-		if npm install; then
-			echo -e "\e[92mDependencies installation Done!\e[0m"
-		else
-			echo -e "\e[91mUnable to install dependencies!"
-			exit;
-		fi
+elif [ "$ARM" = "armv7l" ]; then
+	if npm install; then
+		echo -e "\e[92mDependencies installation Done!\e[0m"
+	else
+		echo -e "\e[91mUnable to install dependencies!"
+		exit;
 	fi
 fi
 
@@ -203,14 +195,12 @@ if [[ $choice =~ ^[Yy]$ ]]; then
     pm2 save
 		echo " "
 		echo -e "\e[92mWe're ready! Restart your Pi Zero to start your MagicMirror. \e[0m"
-	else
-		if [ "$ARM" = "armv7l" ]; then
-	    sudo su -c "env PATH=$PATH:/usr/bin pm2 startup linux -u pi --hp /home/pi"
-	    pm2 start ~/MagicMirror/installers/pm2_MagicMirror.json
-	    pm2 save
-			echo " "
-			echo -e "\e[92mWe're ready! Run \e[1m\e[97mDISPLAY=:0 npm start\e[0m\e[92m from the ~/MagicMirror directory to start your MagicMirror.\e[0m"
-		fi
+	elif [ "$ARM" = "armv7l" ]; then
+    sudo su -c "env PATH=$PATH:/usr/bin pm2 startup linux -u pi --hp /home/pi"
+    pm2 start ~/MagicMirror/installers/pm2_MagicMirror.json
+    pm2 save
+		echo " "
+		echo -e "\e[92mWe're ready! Run \e[1m\e[97mDISPLAY=:0 npm start\e[0m\e[92m from the ~/MagicMirror directory to start your MagicMirror.\e[0m"
 	fi
 fi
 echo " "

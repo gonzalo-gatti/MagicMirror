@@ -190,13 +190,13 @@ if [[ $choice =~ ^[Yy]$ ]]; then
 		sudo chmod a+x ~/MagicMirror/installers/startMagicMirrorPi0.sh;
 		sudo chmod a+x ~/MagicMirror/installers/pm2_MagicMirrorPi0.json;
 		sudo chmod a+x ~/MagicMirror/installers/chromium_startPi0.sh;
-		sudo su -c "env PATH=$PATH:/usr/bin pm2 startup systemd -u pi --hp /home/pi"
+		sudo su -c "env PATH=$PATH:/usr/bin pm2 startup systemd -u pi --hp $HOME"
     pm2 start ~/MagicMirror/installers/pm2_MagicMirrorPi0.json
     pm2 save
 		echo " "
 		echo -e "\e[92mWe're ready! Restart your Pi Zero to start your MagicMirror. \e[0m"
 	elif [ "$ARM" = "armv7l" ]; then
-    sudo su -c "env PATH=$PATH:/usr/bin pm2 startup linux -u pi --hp /home/pi"
+    sudo su -c "env PATH=$PATH:/usr/bin pm2 startup systemd -u pi --hp $HOME"
     pm2 start ~/MagicMirror/installers/pm2_MagicMirror.json
     pm2 save
 		echo " "

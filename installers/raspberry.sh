@@ -137,7 +137,7 @@ if [ "$ARM" = "armv6l" ]; then
 		echo -e "\e[91mErrors while installing dependencies! (source command: npm install acorn@latest)"
 	fi
 	if npm install stylelint@latest; then
-		echo -e "\e[91mErrors while installing dependencies! (source command: pm install stylelint@latest)"
+		echo -e "\e[91mErrors while installing dependencies! (source command: npm install stylelint@latest)"
 	fi
 	if npm audit fix; then
 		echo -e "\e[91mVulnerabilities may remain!"

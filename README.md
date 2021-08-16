@@ -1,7 +1,7 @@
 
 Just run:
 ```
-	bash -c "$(curl -sL https://raw.githubusercontent.com/ac2799/MagicMirror/master/installers/raspberry.sh)"
+	bash -c "$(curl -sL https://raw.githubusercontent.com/gonzalo-gatti/MagicMirror/master/installers/raspberry.sh)"
 ```
 
 

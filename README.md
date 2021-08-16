@@ -1,3 +1,10 @@
+
+Just run:
+```
+	bash -c "$(curl -sL https://raw.githubusercontent.com/ac2799/MagicMirror/master/installers/raspberry.sh)"
+```
+
+
 ![MagicMirror²: The open source modular smart mirror platform. ](.github/header.png)
 
 <p align="center">

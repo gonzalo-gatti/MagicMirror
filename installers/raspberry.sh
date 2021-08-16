@@ -120,7 +120,9 @@ echo -e "\e[96mCloning MagicMirror ...\e[90m"
 ## if brought back into main repo
 #if git clone --depth=1 https://github.com/MichMich/MagicMirror.git; then
 ## if using from ac2799 repo
-if git clone --depth=1 https://github.com/ac2799/MagicMirror.git; then
+#if git clone --depth=1 https://github.com/ac2799/MagicMirror.git; then
+## if using from gonzalo-gatti repo
+if git clone --depth=1 https://github.com/gonzalo-gatti/MagicMirror.git; then
 	echo -e "\e[92mCloning MagicMirror Done!\e[0m"
 else
 	echo -e "\e[91mUnable to clone MagicMirror."
